@@ -48,22 +48,36 @@ let GROUND_HEIGHT = 0;
 let GRAVITY = 0;
 
 function calculateScale() {
+    // Detect if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth < 1024 && window.innerHeight < 600);
+
     // We prioritize Height for the scaling feel of a side-scroller
     // 600px is our reference "internal" height
-    // CLAMP: Ensure reference height doesn't feel too small on ultra-wide screens
-    // If CANVAS_HEIGHT is tiny (short landscape), we still want things to look "beefy"
-    BASE_SCALE = Math.max(CANVAS_HEIGHT, 400) / 600;
+    // CLAMP: Only apply reference height clamp on mobile to help with tiny characters
+    if (isMobile) {
+        BASE_SCALE = Math.max(CANVAS_HEIGHT, 400) / 600;
+    } else {
+        BASE_SCALE = CANVAS_HEIGHT / 600;
+    }
 
     const aspectRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
 
     // Categorical adjustments for better landscape experience
     if (aspectRatio > 1.2) {
         // Landscape (Mobile / Desktop / Laptop)
-        // INCREASED proportions for better visibility on wide screens
-        GROUND_HEIGHT_PERCENT = 0.15;
-        PLAYER_SIZE_PERCENT = 0.18; // Larger dog
-        OBSTACLE_MIN_PERCENT = 0.12;
-        OBSTACLE_MAX_PERCENT = 0.16;
+        if (isMobile) {
+            // Mobile Landscape: Beefy proportions for visibility
+            GROUND_HEIGHT_PERCENT = 0.15;
+            PLAYER_SIZE_PERCENT = 0.18;
+            OBSTACLE_MIN_PERCENT = 0.12;
+            OBSTACLE_MAX_PERCENT = 0.16;
+        } else {
+            // Laptop/Desktop Landscape: Revert to v1.3.4 (leaner)
+            GROUND_HEIGHT_PERCENT = 0.12;
+            PLAYER_SIZE_PERCENT = 0.11;
+            OBSTACLE_MIN_PERCENT = 0.08;
+            OBSTACLE_MAX_PERCENT = 0.11;
+        }
     } else {
         // Squarer or Portrait
         GROUND_HEIGHT_PERCENT = 0.15;
@@ -72,11 +86,10 @@ function calculateScale() {
         OBSTACLE_MAX_PERCENT = 0.15;
     }
 
-    // Ensure Ground is never too thin to see (min 60px)
-    GROUND_HEIGHT = Math.max(CANVAS_HEIGHT * GROUND_HEIGHT_PERCENT, 60);
+    // Ensure Ground is never too thin to see
+    GROUND_HEIGHT = CANVAS_HEIGHT * GROUND_HEIGHT_PERCENT;
+    if (isMobile) GROUND_HEIGHT = Math.max(GROUND_HEIGHT, 60);
 
-    // Physics must stay proportional to ACTUAL height to look natural, 
-    // but we use the BASE_SCALE to tune the "feel"
     JUMP_FORCE = CANVAS_HEIGHT * JUMP_FORCE_CONSTANT;
     GRAVITY = CANVAS_HEIGHT * GRAVITY_CONSTANT;
 }
