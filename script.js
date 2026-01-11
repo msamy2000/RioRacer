@@ -3,6 +3,25 @@
  * Endless Runner Game
  */
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDWyv1VmQcOD7bwhAfleqQenAHSWsfiN3U",
+    authDomain: "rioracer-e8003.firebaseapp.com",
+    projectId: "rioracer-e8003",
+    storageBucket: "rioracer-e8003.firebasestorage.app",
+    messagingSenderId: "928449568156",
+    appId: "1:928449568156:web:a1d4d819c4c352caff3c59",
+    measurementId: "G-61KD8CPRTN"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -497,6 +516,67 @@ function animate() {
     }
 }
 
+// Firestore References
+const globalScoreDocRef = doc(db, "scores", "global");
+
+// Global State
+let globalHighScore = 0;
+
+async function fetchGlobalHighScore() {
+    try {
+        const docSnap = await getDoc(globalScoreDocRef);
+        if (docSnap.exists()) {
+            globalHighScore = docSnap.data().value || 0;
+            // Update UI if we have a specific element for it, or just log for now
+            // Let's create a visual indicator for "World Record"
+            updateWorldRecordUI();
+        } else {
+            // Create if doesn't exist
+            await setDoc(globalScoreDocRef, { value: 0 });
+        }
+    } catch (e) {
+        console.error("Error fetching global score:", e);
+    }
+}
+
+async function checkAndSaveGlobalScore(newScore) {
+    if (newScore > globalHighScore) {
+        globalHighScore = newScore;
+        updateWorldRecordUI();
+
+        try {
+            await setDoc(globalScoreDocRef, { value: newScore });
+            // Maybe show a special "WORLD RECORD!" alert?
+            highScoreAlert.innerText = "WORLD RECORD BROKEN!";
+            highScoreAlert.style.color = "#FFD700"; // Gold
+            highScoreAlertShown = false; // Allow showing again if needed
+        } catch (e) {
+            console.error("Error updating global score:", e);
+        }
+    }
+}
+
+function updateWorldRecordUI() {
+    // Append World Record to Start Screen logic
+    // We might need a new UI element for this.
+    // For now, let's just make the "High Score" text show "World Record: X"
+    // Or add a separate line.
+
+    // Let's modify the start screen text dynamically
+    const wrText = `World Record: ${globalHighScore}`;
+    // If we want to display it properly, we should add an element.
+    // I'll append it to the existing high score element text or create a new one via DOM if it doesn't exist?
+    // Safer to just log it for now or append to subtitle.
+
+    // Quick Hack: Update the Start Screen High Score label to show both
+    // "Personal: 100 | World: 500"
+    startHighScoreEl.innerText = `${Math.floor(highScore)} | World: ${Math.floor(globalHighScore)}`;
+    highScoreEl.innerText = `${Math.floor(highScore)} (WR: ${Math.floor(globalHighScore)})`;
+}
+
+// Initialize Global Score
+fetchGlobalHighScore();
+
 function startGame() {
     audio.init();
 
@@ -505,11 +585,14 @@ function startGame() {
     hud.classList.remove('hidden');
 
     // Ensure HUD shows current high score
-    highScoreEl.innerText = Math.floor(highScore);
+    highScoreEl.innerText = `${Math.floor(highScore)} (WR: ${Math.floor(globalHighScore)})`;
 
     gameSpeed = 5;
     score = 0;
     highScoreAlertShown = false;
+    highScoreAlert.innerText = "NEW HIGH SCORE!"; // Reset text
+    highScoreAlert.style.color = "yellow";
+
     obstacles = [];
     frameCount = 0;
 
@@ -524,18 +607,23 @@ function gameOver() {
     finalScoreEl.innerText = "Score: " + Math.floor(score);
     audio.playCrash();
 
+    // Local High Score
     if (score > highScore) {
         highScore = Math.floor(score);
         localStorage.setItem('rioRacerHighScore', highScore);
-        startHighScoreEl.innerText = highScore;
     }
+
+    // Global High Score Check
+    checkAndSaveGlobalScore(Math.floor(score));
+
+    startHighScoreEl.innerText = `${Math.floor(highScore)} | World: ${Math.floor(globalHighScore)}`;
 }
 
 function resetGame() {
     currentState = GameState.MENU;
     gameOverScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
-    startHighScoreEl.innerText = Math.floor(highScore);
+    startHighScoreEl.innerText = `${Math.floor(highScore)} | World: ${Math.floor(globalHighScore)}`;
 
     // Reset player
     player.y = CANVAS_HEIGHT - GROUND_HEIGHT - player.height;
@@ -545,6 +633,7 @@ function resetGame() {
     background.draw();
     ctx.fillStyle = '#555';
     ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+    fetchGlobalHighScore(); // Refresh in case someone else played
 }
 
 // Event Listeners for Buttons
