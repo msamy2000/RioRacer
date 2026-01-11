@@ -561,11 +561,6 @@ async function fetchLeaderboard() {
     } catch (e) {
         console.error("Error fetching leaderboard:", e);
         leaderboardList.innerHTML = "<li>Error loading scores.</li>";
-        // DEBUG: Alert user
-        if (!window.hasAlertedError) {
-            alert("Leaderboard Error: " + e.message);
-            window.hasAlertedError = true;
-        }
     }
 }
 
@@ -596,7 +591,6 @@ async function submitScore() {
         console.error("Error saving score:", e);
         submitScoreBtn.innerText = "ERROR";
         submitScoreBtn.disabled = false;
-        alert("Save Error: " + e.message);
     }
 }
 
