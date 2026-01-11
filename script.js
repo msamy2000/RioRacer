@@ -34,18 +34,32 @@ let CANVAS_HEIGHT = window.innerHeight;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
-// Physics Constants
-const GRAVITY = 0.6;
-let BASE_SCALE = 1;
+// Scaling Factors
+let GROUND_HEIGHT_PERCENT = 0.15;
+let PLAYER_HEIGHT_PERCENT = 0.15;
+let OBSTACLE_MIN_PERCENT = 0.10;
+let OBSTACLE_MAX_PERCENT = 0.15;
 
 function calculateScale() {
     BASE_SCALE = Math.min(CANVAS_WIDTH, CANVAS_HEIGHT) / 800; // Base reference
+
+    // Adjust for Mobile Landscape
+    if (CANVAS_WIDTH > CANVAS_HEIGHT && CANVAS_HEIGHT < 600) {
+        GROUND_HEIGHT_PERCENT = 0.12;
+        PLAYER_HEIGHT_PERCENT = 0.12;
+        OBSTACLE_MIN_PERCENT = 0.08;
+        OBSTACLE_MAX_PERCENT = 0.11;
+    } else {
+        GROUND_HEIGHT_PERCENT = 0.15;
+        PLAYER_HEIGHT_PERCENT = 0.15;
+        OBSTACLE_MIN_PERCENT = 0.10;
+        OBSTACLE_MAX_PERCENT = 0.15;
+    }
+
+    GROUND_HEIGHT = CANVAS_HEIGHT * GROUND_HEIGHT_PERCENT;
+    JUMP_FORCE = -15 * BASE_SCALE;
 }
 calculateScale();
-
-// Physics Constants
-let JUMP_FORCE = -15 * BASE_SCALE;
-let GROUND_HEIGHT = CANVAS_HEIGHT * 0.15; // 15% of screen is ground
 
 // Game State Enum
 const GameState = {
@@ -291,13 +305,8 @@ class InputHandler {
 // --- Player Class ---
 class Player {
     constructor() {
-        // Player height = 15% of screen height?
-        this.height = CANVAS_HEIGHT * 0.15;
-        this.width = this.height; // Square for now
-
+        this.resize();
         this.x = CANVAS_WIDTH * 0.1; // 10% from left
-        // Y position is calculated from bottom
-        this.y = CANVAS_HEIGHT - GROUND_HEIGHT - this.height;
         this.vy = 0;
         this.grounded = true;
 
@@ -306,6 +315,14 @@ class Player {
 
         this.jumpCount = 0; // Track jumps
         this.maxJumps = 2;
+    }
+
+    resize() {
+        this.height = CANVAS_HEIGHT * PLAYER_HEIGHT_PERCENT;
+        this.width = this.height;
+        if (this.grounded) {
+            this.y = CANVAS_HEIGHT - GROUND_HEIGHT - this.height;
+        }
     }
 
     update(input) {
@@ -408,8 +425,9 @@ class Background {
 // --- Obstacle Class ---
 class Obstacle {
     constructor(xOffset) {
-        // Dynamic size 10-15% of screen height
-        let sizeFactor = CANVAS_HEIGHT * 0.10 + Math.random() * (CANVAS_HEIGHT * 0.05);
+        // Dynamic size based on scaling factors
+        let sizeRange = OBSTACLE_MAX_PERCENT - OBSTACLE_MIN_PERCENT;
+        let sizeFactor = CANVAS_HEIGHT * OBSTACLE_MIN_PERCENT + Math.random() * (CANVAS_HEIGHT * sizeRange);
         this.width = sizeFactor;
         this.height = sizeFactor;
 
@@ -476,8 +494,6 @@ function handleObstacles(deltaTime) {
     // Jump time (time in air) = 2 * vy / g. 
     // This is approximate because vy is initial velocity.
     // Note: Variables scale dynamically, so we calculate fresh.
-    let jf = Math.abs(JUMP_FORCE);
-    let g = GRAVITY;
 
     // Let's use the Values actually used in Player.update:
     let usedGravity = (CANVAS_HEIGHT * 0.0012);
@@ -595,9 +611,7 @@ function animate() {
         canvas.height = CANVAS_HEIGHT;
 
         calculateScale(); // Recalculate physics constants
-
-        // Fix player Y if on ground
-        if (player.grounded) player.y = CANVAS_HEIGHT - GROUND_HEIGHT - player.height;
+        player.resize(); // Update player size and position
     }
 
     if (currentState === GameState.PLAYING) {
