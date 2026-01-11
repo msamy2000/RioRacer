@@ -773,6 +773,9 @@ function startGame() {
     highScoreAlert.innerText = "NEW HIGH SCORE!";
     highScoreAlert.style.color = "yellow";
 
+    // Reset Hero Image
+    player.image = heroStartImg;
+
     obstacles = [];
     frameCount = 0;
 }
