@@ -40,7 +40,7 @@ const GameState = {
 let currentState = GameState.MENU;
 let gameSpeed = 5;
 let score = 0;
-let highScore = localStorage.getItem('rioRacerHighScore') || 0;
+let highScore = parseInt(localStorage.getItem('rioRacerHighScore')) || 0;
 let frameCount = 0;
 
 // Assets
@@ -498,11 +498,14 @@ function animate() {
 }
 
 function startGame() {
-    audio.init(); // Initialize audio context on user interaction
+    audio.init();
 
     currentState = GameState.PLAYING;
     startScreen.classList.add('hidden');
     hud.classList.remove('hidden');
+
+    // Ensure HUD shows current high score
+    highScoreEl.innerText = Math.floor(highScore);
 
     gameSpeed = 5;
     score = 0;
@@ -524,7 +527,7 @@ function gameOver() {
     if (score > highScore) {
         highScore = Math.floor(score);
         localStorage.setItem('rioRacerHighScore', highScore);
-        startHighScoreEl.innerText = highScore; // Update start screen for next time
+        startHighScoreEl.innerText = highScore;
     }
 }
 
@@ -532,7 +535,7 @@ function resetGame() {
     currentState = GameState.MENU;
     gameOverScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
-    startHighScoreEl.innerText = Math.floor(highScore); // Ensure it's updated
+    startHighScoreEl.innerText = Math.floor(highScore);
 
     // Reset player
     player.y = CANVAS_HEIGHT - GROUND_HEIGHT - player.height;
