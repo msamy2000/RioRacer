@@ -66,11 +66,11 @@ function calculateScale() {
     if (aspectRatio > 1.2) {
         // Landscape (Mobile / Desktop / Laptop)
         if (isMobile) {
-            // Mobile Landscape: Beefy proportions for visibility
-            GROUND_HEIGHT_PERCENT = 0.15;
-            PLAYER_SIZE_PERCENT = 0.18;
-            OBSTACLE_MIN_PERCENT = 0.12;
-            OBSTACLE_MAX_PERCENT = 0.16;
+            // Mobile Landscape: Tuned for visibility but not "Crazy Large"
+            GROUND_HEIGHT_PERCENT = 0.14;
+            PLAYER_SIZE_PERCENT = 0.14;
+            OBSTACLE_MIN_PERCENT = 0.10;
+            OBSTACLE_MAX_PERCENT = 0.14;
         } else {
             // Laptop/Desktop Landscape: Revert to v1.3.4 (leaner)
             GROUND_HEIGHT_PERCENT = 0.12;

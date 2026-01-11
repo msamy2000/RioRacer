@@ -335,7 +335,84 @@ canvas {
     }
 
     .game-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
+    }
+
+    .game-over-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    #final-score {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .primary-btn {
+        font-size: 1.5rem;
+        padding: 0.8rem 2.5rem;
+    }
+
+    #leaderboard-container {
+        margin-bottom: 10px;
+        padding: 10px;
+    }
+
+    #leaderboard-container h3 {
+        font-size: 1.2rem;
+    }
+
+    #new-record-section {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+/* Ultra-Compact for Short Landscape (e.g., Mobile Browsers with toolbars) */
+@media (min-aspect-ratio: 1.2/1) and (max-height: 500px) {
+    .ui-overlay {
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .game-title,
+    .game-over-title {
+        font-size: 1.8rem;
+    }
+
+    #final-score {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .primary-btn {
+        font-size: 1.1rem;
+        padding: 0.5rem 1.5rem;
+    }
+
+    #cover-image {
+        max-height: 35vh;
+    }
+
+    #leaderboard-container {
+        padding: 8px;
+        max-height: 40vh;
+        width: 250px;
+    }
+
+    #leaderboard-container h3 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    #leaderboard-list li {
+        font-size: 0.8rem;
+        padding: 3px 0;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        margin-bottom: 1rem;
     }
 }
 
