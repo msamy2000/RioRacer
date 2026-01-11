@@ -254,8 +254,8 @@ class Player {
     }
 
     draw() {
-        // Draw image
-        if (this.image.complete) {
+        // Draw image STRICT CHECK
+        if (this.image.complete && this.image.naturalWidth > 0) {
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         } else {
             // Fallback
@@ -284,7 +284,7 @@ class Background {
     }
 
     draw() {
-        if (bgImg.complete) {
+        if (bgImg.complete && bgImg.naturalWidth > 0) {
             // Calculate scale to fit height
             let scale = CANVAS_HEIGHT / bgImg.height;
             let scaledWidth = bgImg.width * scale;
@@ -294,6 +294,9 @@ class Background {
             // We need to cover CANVAS_WIDTH + the bit that scrolled off (Math.abs(this.x))
             // Since this.x is negative, we need ensures width * count > CANVAS_WIDTH - this.x
             // Simply put: draw until we are off screen.
+
+            // Safety check for scale infinity
+            if (!isFinite(this.width) || this.width <= 0) this.width = CANVAS_WIDTH;
 
             let numTiles = Math.ceil(CANVAS_WIDTH / this.width) + 1;
 
@@ -347,7 +350,7 @@ class Obstacle {
     }
 
     draw() {
-        if (this.image.complete) {
+        if (this.image.complete && this.image.naturalWidth > 0) {
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
         } else {
             ctx.fillStyle = this.type === 'cat' ? 'orange' : 'brown';
