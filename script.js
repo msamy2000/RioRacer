@@ -775,8 +775,6 @@ function startGame() {
 
     obstacles = [];
     frameCount = 0;
-
-    animate();
 }
 
 function gameOver() {
@@ -820,10 +818,7 @@ function resetGame() {
     player.y = CANVAS_HEIGHT - GROUND_HEIGHT - player.height;
     player.vy = 0;
 
-    // Draw initial state
-    background.draw();
-    ctx.fillStyle = '#555';
-    ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+    // Initial state is handled by the persistent animate loop
     fetchLeaderboard(); // Refresh
 }
 
@@ -842,3 +837,6 @@ ctx.fillStyle = '#555';
 ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
 player.draw();
 highScoreEl.innerText = Math.floor(highScore);
+
+// Start the single, persistent game loop
+animate();
