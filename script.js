@@ -68,13 +68,13 @@ let frameCount = 0;
 
 // Assets
 const heroImg = new Image();
-heroImg.src = 'graphics/hero.png';
+heroImg.src = 'graphics/hero.jpg';
 
 const catImg = new Image();
-catImg.src = 'graphics/obst_Cat.png';
+catImg.src = 'graphics/obst_Cat.jpg';
 
 const dogImg = new Image();
-dogImg.src = 'graphics/obst_Dog.png';
+dogImg.src = 'graphics/obst_Dog.jpg';
 
 const bgImg = new Image();
 bgImg.src = 'graphics/background_seamless_v2.png';
