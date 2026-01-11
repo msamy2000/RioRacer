@@ -76,8 +76,137 @@ catImg.src = 'graphics/obst_Cat.jpg';
 const dogImg = new Image();
 dogImg.src = 'graphics/obst_Dog.jpg';
 
+const dog2Img = new Image();
+dog2Img.src = 'graphics/obst_dog2.png';
+
 const bgImg = new Image();
 bgImg.src = 'graphics/background_seamless_v2.png';
+
+// ... [Existing UI Elements] ...
+
+// ... [Existing AudioController] ...
+
+// ... [Existing InputHandler and Player] ...
+
+// ... [Existing Background] ...
+
+// --- Obstacle Class ---
+class Obstacle {
+    constructor(xOffset) {
+        // Dynamic size 10-15% of screen height
+        let sizeFactor = CANVAS_HEIGHT * 0.10 + Math.random() * (CANVAS_HEIGHT * 0.05);
+        this.width = sizeFactor;
+        this.height = sizeFactor;
+
+        // Start exactly at screen edge + optional offset passed from spawner
+        this.x = CANVAS_WIDTH + (xOffset || 0);
+
+        // Align bottom with ground
+        this.y = CANVAS_HEIGHT - GROUND_HEIGHT - this.height;
+        this.markedForDeletion = false;
+
+        // Randomly choose Cat, Dog, or Dog2
+        const rand = Math.random();
+        if (rand < 0.33) {
+            this.type = 'cat';
+            this.image = catImg;
+        } else if (rand < 0.66) {
+            this.type = 'dog';
+            this.image = dogImg;
+        } else {
+            this.type = 'dog2';
+            this.image = dog2Img;
+        }
+
+        // Speed variation relative to gameSpeed
+        this.speedOffset = Math.random() * (CANVAS_WIDTH * 0.0005);
+    }
+    // ... [Rest of Obstacle class] ...
+    update() {
+        let currentRealSpeed = (CANVAS_WIDTH * 0.005) * (gameSpeed / 5);
+        this.x -= (currentRealSpeed + this.speedOffset);
+        if (this.x < -this.width) this.markedForDeletion = true;
+    }
+
+    draw() {
+        if (this.image.complete) {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        } else {
+            ctx.fillStyle = this.type === 'cat' ? 'orange' : 'brown';
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+    }
+}
+
+// ...
+
+async function fetchLeaderboard() {
+    try {
+        const q = query(scoresCollectionRef, orderBy("score", "desc"), limit(10));
+        const querySnapshot = await getDocs(q);
+
+        leaderboardList.innerHTML = ""; // Clear existing
+        let count = 0;
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${count + 1}. ${data.name}</span> <span>${data.score}</span>`;
+            leaderboardList.appendChild(li);
+
+            // Track the lowest score in the top 10
+            if (count === querySnapshot.size - 1) {
+                lowestTop10Score = data.score;
+            }
+            count++;
+        });
+
+        // If less than 10 players, any score > 0 is a top score
+        if (count < 10) {
+            lowestTop10Score = 0;
+        }
+
+    } catch (e) {
+        console.error("Error fetching leaderboard:", e);
+        leaderboardList.innerHTML = "<li>Error loading scores.</li>";
+        // DEBUG: Alert user
+        if (!window.hasAlertedError) {
+            alert("Leaderboard Error: " + e.message);
+            window.hasAlertedError = true;
+        }
+    }
+}
+
+async function submitScore() {
+    const name = playerNameInput.value.trim() || "Anonymous";
+    const newScore = Math.floor(score);
+
+    if (newScore <= 0) return;
+
+    try {
+        submitScoreBtn.disabled = true;
+        submitScoreBtn.innerText = "SAVING...";
+
+        await addDoc(scoresCollectionRef, {
+            name: name,
+            score: newScore,
+            timestamp: new Date()
+        });
+
+        // Success
+        newRecordSection.classList.add('hidden'); // Hide input
+        fetchLeaderboard(); // Refresh list
+
+        // Save to local storage too
+        localStorage.setItem('rioRacerPlayerName', name);
+
+    } catch (e) {
+        console.error("Error saving score:", e);
+        submitScoreBtn.innerText = "ERROR";
+        submitScoreBtn.disabled = false;
+        alert("Save Error: " + e.message);
+    }
+}
 
 // UI Elements
 const startScreen = document.getElementById('start-screen');
