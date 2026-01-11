@@ -60,6 +60,7 @@ let score = 0;
 let highScore = parseInt(localStorage.getItem('rioRacerHighScore')) || 0;
 let highScoreAlertShown = false;
 let frameCount = 0;
+let timeSinceStart = 0; // Track time for speed increase
 
 // Assets
 const heroImg = new Image();
@@ -124,8 +125,30 @@ class AudioController {
         oscillator.connect(gainNode);
         gainNode.connect(this.ctx.destination);
 
+        oscillator.connect(gainNode);
+        gainNode.connect(this.ctx.destination);
+
         oscillator.start();
         oscillator.stop(this.ctx.currentTime + 0.1);
+    }
+
+    playDoubleJump() {
+        if (!this.enabled || !this.ctx) return;
+        const oscillator = this.ctx.createOscillator();
+        const gainNode = this.ctx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(300, this.ctx.currentTime);
+        oscillator.frequency.linearRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+
+        gainNode.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.15);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(this.ctx.currentTime + 0.15);
     }
 
     playCrash() {
@@ -227,17 +250,30 @@ class Player {
 
         // Sprite animation (simple toggle or just static for now since we have 1 image)
         this.image = heroImg;
+
+        this.jumpCount = 0; // Track jumps
+        this.maxJumps = 2;
     }
 
     update(input) {
         // Recalculate forces if screen resized? Ideally yes in resize handler.
 
         // Jumping
-        if (input.jumpPressed && this.grounded) {
-            this.vy = -Math.abs(CANVAS_HEIGHT * 0.022); // Jump ~2.2% of screen height force
-            this.grounded = false;
-            input.jumpPressed = false; // Prevent holding to fly, must tap
-            audio.playJump();
+        if (input.jumpPressed) {
+            if (this.grounded) {
+                // First Jump
+                this.vy = -Math.abs(CANVAS_HEIGHT * 0.022);
+                this.grounded = false;
+                this.jumpCount = 1;
+                audio.playJump();
+                input.jumpPressed = false; // Prevent holding
+            } else if (this.jumpCount < this.maxJumps) {
+                // Double Jump - Higher force for "double distance" feel
+                this.vy = -Math.abs(CANVAS_HEIGHT * 0.022 * 1.3); // 1.3x force provides significant airtime boost
+                this.jumpCount++;
+                audio.playDoubleJump();
+                input.jumpPressed = false;
+            }
         }
 
         // Integrity check: Apply Gravity
@@ -255,6 +291,7 @@ class Player {
             this.y = groundLevel;
             this.vy = 0;
             this.grounded = true;
+            this.jumpCount = 0; // Reset jumps
         }
     }
 
@@ -461,9 +498,16 @@ function updateDifficulty() {
     // Increase speed every 500 points
     score += 0.1; // Slow score increment
 
-    const difficultyLevel = Math.floor(score / 500);
-    gameSpeed = 5 + difficultyLevel * 1.5; // Speed up
-    if (gameSpeed > 20) gameSpeed = 20; // Cap speed
+    // Time-based Speed Increase (Every 40s approx)
+    // 60fps * 40s = 2400 frames
+    if (frameCount % 2400 === 0 && frameCount > 0) {
+        gameSpeed += 0.5; // Mild increase
+    }
+
+    // Still keep score-based increase or replace?
+    // User asked for "Every 40 seconds", implies time-based is primary.
+    // Let's cap max speed
+    if (gameSpeed > 25) gameSpeed = 25;
 }
 
 function animate() {
