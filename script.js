@@ -50,18 +50,20 @@ let GRAVITY = 0;
 function calculateScale() {
     // We prioritize Height for the scaling feel of a side-scroller
     // 600px is our reference "internal" height
-    BASE_SCALE = CANVAS_HEIGHT / 600;
+    // CLAMP: Ensure reference height doesn't feel too small on ultra-wide screens
+    // If CANVAS_HEIGHT is tiny (short landscape), we still want things to look "beefy"
+    BASE_SCALE = Math.max(CANVAS_HEIGHT, 400) / 600;
 
     const aspectRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
 
     // Categorical adjustments for better landscape experience
     if (aspectRatio > 1.2) {
         // Landscape (Mobile / Desktop / Laptop)
-        // We make characters slightly smaller relative to height to see more "track"
-        GROUND_HEIGHT_PERCENT = 0.12;
-        PLAYER_SIZE_PERCENT = 0.11;
-        OBSTACLE_MIN_PERCENT = 0.08;
-        OBSTACLE_MAX_PERCENT = 0.11;
+        // INCREASED proportions for better visibility on wide screens
+        GROUND_HEIGHT_PERCENT = 0.15;
+        PLAYER_SIZE_PERCENT = 0.18; // Larger dog
+        OBSTACLE_MIN_PERCENT = 0.12;
+        OBSTACLE_MAX_PERCENT = 0.16;
     } else {
         // Squarer or Portrait
         GROUND_HEIGHT_PERCENT = 0.15;
@@ -70,7 +72,11 @@ function calculateScale() {
         OBSTACLE_MAX_PERCENT = 0.15;
     }
 
-    GROUND_HEIGHT = CANVAS_HEIGHT * GROUND_HEIGHT_PERCENT;
+    // Ensure Ground is never too thin to see (min 60px)
+    GROUND_HEIGHT = Math.max(CANVAS_HEIGHT * GROUND_HEIGHT_PERCENT, 60);
+
+    // Physics must stay proportional to ACTUAL height to look natural, 
+    // but we use the BASE_SCALE to tune the "feel"
     JUMP_FORCE = CANVAS_HEIGHT * JUMP_FORCE_CONSTANT;
     GRAVITY = CANVAS_HEIGHT * GRAVITY_CONSTANT;
 }
