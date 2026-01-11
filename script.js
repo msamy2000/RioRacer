@@ -759,6 +759,16 @@ function resetGame() {
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', resetGame);
 
+// Reset Score Logic
+const resetScoreBtn = document.getElementById('reset-score-btn');
+resetScoreBtn.addEventListener('click', () => {
+    localStorage.removeItem('rioRacerHighScore');
+    highScore = 0;
+    startHighScoreEl.innerText = "0";
+    highScoreEl.innerText = "0";
+    alert("Local High Score Reset to 0!");
+});
+
 // Initial Draw & Setup
 startHighScoreEl.innerText = Math.floor(highScore);
 background.draw();
