@@ -335,22 +335,22 @@ canvas {
     }
 
     .game-title {
-        font-size: 2.5rem;
+        font-size: 8vh;
     }
 
     .game-over-title {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
+        font-size: 8vh;
+        margin-bottom: 2vh;
     }
 
     #final-score {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
+        font-size: 4vh;
+        margin-bottom: 2vh;
     }
 
     .primary-btn {
-        font-size: 1.5rem;
-        padding: 0.8rem 2.5rem;
+        font-size: 4vh;
+        padding: 1.5vh 4vh;
     }
 
     #leaderboard-container {
@@ -359,7 +359,7 @@ canvas {
     }
 
     #leaderboard-container h3 {
-        font-size: 1.2rem;
+        font-size: 3vh;
     }
 
     #new-record-section {
@@ -368,32 +368,27 @@ canvas {
     }
 }
 
-/* Ultra-Compact for Short Landscape (e.g., Mobile Browsers with toolbars) */
-@media (min-aspect-ratio: 1.2/1) and (max-height: 500px) {
+/* Ultra-Compact for Short Landscape (e.g., Mobile Browsers) */
+@media (min-aspect-ratio: 1.2/1) and (max-height: 600px) {
     .ui-overlay {
-        gap: 5px;
-        /* Tiny gap */
-        padding: 5px;
-        /* Tiny padding */
+        gap: 10px;
+        padding: 10px;
     }
 
     .game-title,
     .game-over-title {
-        font-size: 1.2rem;
-        /* Much smaller */
-        margin-bottom: 0.2rem;
+        font-size: 7vh;
+        margin-bottom: 1vh;
     }
 
     #final-score {
-        font-size: 0.9rem;
-        /* Much smaller */
-        margin-bottom: 0.4rem;
+        font-size: 3.5vh;
+        margin-bottom: 1vh;
     }
 
     .primary-btn {
-        font-size: 0.9rem;
-        /* Much smaller */
-        padding: 0.4rem 1.2rem;
+        font-size: 3.5vh;
+        padding: 1vh 3vh;
     }
 
     #cover-image {
@@ -403,29 +398,35 @@ canvas {
     #leaderboard-container {
         padding: 5px;
         max-height: 45vh;
-        width: 200px;
-        /* Slimmer */
+        width: 220px;
         margin-bottom: 5px;
     }
 
     #leaderboard-container h3 {
-        font-size: 0.9rem;
+        font-size: 3vh;
         margin-bottom: 2px;
     }
 
     #leaderboard-list li {
-        font-size: 0.7rem;
-        padding: 2px 0;
+        font-size: 2.5vh;
+        padding: 1px 0;
     }
 
     .subtitle {
-        font-size: 0.8rem;
-        margin-bottom: 0.5rem;
+        font-size: 3vh !important;
+        margin-bottom: 0.5vh !important;
     }
 
     #new-record-section {
         padding: 5px;
         margin-bottom: 5px;
+        gap: 5px;
+    }
+
+    #player-name-input {
+        padding: 5px;
+        font-size: 2.5vh;
+        width: 150px;
     }
 }
 
