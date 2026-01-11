@@ -160,7 +160,10 @@ canvas {
 }
 
 #cover-image {
-    max-width: 300px;
+    width: auto;
+    max-width: 400px;
+    max-height: 40vh;
+    object-fit: contain;
     border-radius: 20px;
     margin-bottom: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -222,6 +225,8 @@ canvas {
     border-radius: 10px;
     margin-bottom: 20px;
     width: 300px;
+    max-height: 35vh;
+    overflow-y: auto;
     text-align: center;
 }
 
@@ -291,22 +296,99 @@ canvas {
     box-shadow: 0 2px 0 #0f4c8a !important;
 }
 
-/* Responsiveness */
-@media (max-width: 600px) {
-    .game-title {
-        font-size: 3rem;
+/* Landscape Specifics (Wide screens) */
+@media (min-aspect-ratio: 1.2/1) {
+    .ui-overlay {
+        flex-direction: row;
+        gap: 40px;
+        padding: 20px;
     }
 
-    .game-over-title {
-        font-size: 3.5rem;
+    .ui-content-left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
-    .primary-btn {
-        font-size: 1.5rem;
-        padding: 0.8rem 2rem;
+    .ui-content-right {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     #cover-image {
-        max-width: 200px;
+        margin-bottom: 0;
+    }
+
+    .game-title {
+        font-size: 3rem;
+    }
+}
+
+/* Portrait Warning */
+#portrait-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #1a1a1a;
+    display: none;
+    z-index: 9999;
+    color: white;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.warning-content {
+    padding: 20px;
+}
+
+.rotate-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media (orientation: portrait) {
+    #portrait-warning {
+        display: flex;
+    }
+
+    #game-container {
+        display: none;
+    }
+}
+
+/* Mobile Fixes */
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 2.5rem;
+    }
+
+    .game-over-title {
+        font-size: 3rem;
+    }
+
+    .primary-btn {
+        font-size: 1.2rem;
+        padding: 0.6rem 1.5rem;
+    }
+
+    #cover-image {
+        max-width: 80%;
     }
 }

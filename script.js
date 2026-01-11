@@ -34,36 +34,45 @@ let CANVAS_HEIGHT = window.innerHeight;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
-// Physics and Scaling
-const GRAVITY = 0.6;
-let BASE_SCALE = 1;
-let JUMP_FORCE = 0;
-let GROUND_HEIGHT = 0;
-
-// Scaling Factors
+// Physics and Scaling Defaults (based on height)
+const GRAVITY_CONSTANT = 0.0012;
+const JUMP_FORCE_CONSTANT = -0.022;
 let GROUND_HEIGHT_PERCENT = 0.15;
-let PLAYER_HEIGHT_PERCENT = 0.15;
+let PLAYER_SIZE_PERCENT = 0.15;
 let OBSTACLE_MIN_PERCENT = 0.10;
 let OBSTACLE_MAX_PERCENT = 0.15;
 
-function calculateScale() {
-    BASE_SCALE = Math.min(CANVAS_WIDTH, CANVAS_HEIGHT) / 800; // Base reference
+let BASE_SCALE = 1;
+let JUMP_FORCE = 0;
+let GROUND_HEIGHT = 0;
+let GRAVITY = 0;
 
-    // Adjust for Mobile Landscape
-    if (CANVAS_WIDTH > CANVAS_HEIGHT && CANVAS_HEIGHT < 600) {
+function calculateScale() {
+    // We prioritize Height for the scaling feel of a side-scroller
+    // 600px is our reference "internal" height
+    BASE_SCALE = CANVAS_HEIGHT / 600;
+
+    const aspectRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
+
+    // Categorical adjustments for better landscape experience
+    if (aspectRatio > 1.2) {
+        // Landscape (Mobile / Desktop / Laptop)
+        // We make characters slightly smaller relative to height to see more "track"
         GROUND_HEIGHT_PERCENT = 0.12;
-        PLAYER_HEIGHT_PERCENT = 0.12;
+        PLAYER_SIZE_PERCENT = 0.11;
         OBSTACLE_MIN_PERCENT = 0.08;
         OBSTACLE_MAX_PERCENT = 0.11;
     } else {
+        // Squarer or Portrait
         GROUND_HEIGHT_PERCENT = 0.15;
-        PLAYER_HEIGHT_PERCENT = 0.15;
+        PLAYER_SIZE_PERCENT = 0.15;
         OBSTACLE_MIN_PERCENT = 0.10;
         OBSTACLE_MAX_PERCENT = 0.15;
     }
 
     GROUND_HEIGHT = CANVAS_HEIGHT * GROUND_HEIGHT_PERCENT;
-    JUMP_FORCE = -15 * BASE_SCALE;
+    JUMP_FORCE = CANVAS_HEIGHT * JUMP_FORCE_CONSTANT;
+    GRAVITY = CANVAS_HEIGHT * GRAVITY_CONSTANT;
 }
 calculateScale();
 
@@ -324,7 +333,7 @@ class Player {
     }
 
     resize() {
-        this.height = CANVAS_HEIGHT * PLAYER_HEIGHT_PERCENT;
+        this.height = CANVAS_HEIGHT * PLAYER_SIZE_PERCENT;
         this.width = this.height;
         if (this.grounded) {
             this.y = CANVAS_HEIGHT - GROUND_HEIGHT - this.height;
@@ -332,33 +341,29 @@ class Player {
     }
 
     update(input) {
-        // Recalculate forces if screen resized? Ideally yes in resize handler.
-
         // Jumping
         if (input.jumpPressed) {
             if (this.grounded) {
                 // First Jump
-                this.vy = -Math.abs(CANVAS_HEIGHT * 0.022);
+                this.vy = JUMP_FORCE;
                 this.grounded = false;
                 this.jumpCount = 1;
                 audio.playJump();
                 input.jumpPressed = false; // Prevent holding
             } else if (this.jumpCount < this.maxJumps) {
                 // Double Jump - Higher force for "double distance" feel
-                this.vy = -Math.abs(CANVAS_HEIGHT * 0.022 * 1.3); // 1.3x force provides significant airtime boost
+                this.vy = JUMP_FORCE * 1.3; // 1.3x force provides significant airtime boost
                 this.jumpCount++;
                 audio.playDoubleJump();
                 input.jumpPressed = false;
             }
         }
 
-        // Integrity check: Apply Gravity
+        // Apply Physics
         this.y += this.vy;
 
         if (!this.grounded) {
-            // Gravity relative to screen height? 
-            // let's say gravity is constant acceleration.
-            this.vy += (CANVAS_HEIGHT * 0.0012); // Gravity scaled
+            this.vy += GRAVITY;
         }
 
         // Ground Collision
@@ -502,8 +507,8 @@ function handleObstacles(deltaTime) {
     // Note: Variables scale dynamically, so we calculate fresh.
 
     // Let's use the Values actually used in Player.update:
-    let usedGravity = (CANVAS_HEIGHT * 0.0012);
-    let usedJumpForce = Math.abs(CANVAS_HEIGHT * 0.022);
+    let usedGravity = GRAVITY;
+    let usedJumpForce = Math.abs(JUMP_FORCE);
 
     let timeInAir = (2 * usedJumpForce) / usedGravity; // frames
 
