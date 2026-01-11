@@ -58,6 +58,7 @@ let currentState = GameState.MENU;
 let gameSpeed = 5;
 let score = 0;
 let highScore = parseInt(localStorage.getItem('rioRacerHighScore')) || 0;
+let highScoreBroken = false; // Track if we broke it this run
 let highScoreAlertShown = false;
 let frameCount = 0;
 let timeSinceStart = 0; // Track time for speed increase
@@ -65,6 +66,9 @@ let timeSinceStart = 0; // Track time for speed increase
 // Assets
 const heroImg = new Image();
 heroImg.src = 'graphics/hero.jpg';
+
+const heroStartImg = new Image();
+heroStartImg.src = 'graphics/hero start.png';
 
 const catImg = new Image();
 catImg.src = 'graphics/obst_Cat.jpg';
@@ -149,6 +153,26 @@ class AudioController {
 
         oscillator.start();
         oscillator.stop(this.ctx.currentTime + 0.15);
+    }
+
+    playShiny() {
+        if (!this.enabled || !this.ctx) return;
+        const oscillator = this.ctx.createOscillator();
+        const gainNode = this.ctx.createGain();
+
+        // Shiny magical sound (High Sine wave sweep + glissando sort of)
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(1200, this.ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1800, this.ctx.currentTime + 0.3);
+
+        gainNode.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.4);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.ctx.destination);
+
+        oscillator.start();
+        oscillator.stop(this.ctx.currentTime + 0.4);
     }
 
     playCrash() {
@@ -249,7 +273,7 @@ class Player {
         this.grounded = true;
 
         // Sprite animation (simple toggle or just static for now since we have 1 image)
-        this.image = heroImg;
+        this.image = heroStartImg;
 
         this.jumpCount = 0; // Track jumps
         this.maxJumps = 2;
@@ -498,6 +522,19 @@ function updateDifficulty() {
     // Increase speed every 500 points
     score += 0.1; // Slow score increment
 
+    // Dynamic Hero Switch Logic
+    // Only if we have a valid high score to beat (>0)
+    if (highScore > 0 && score > highScore && !highScoreBroken) {
+        highScoreBroken = true;
+        player.image = heroImg; // Switch to "Strong" dog
+        audio.playShiny();
+
+        // Visual flare?
+        highScoreAlert.innerText = "RECORD BROKEN!";
+        highScoreAlert.style.color = "cyan";
+        highScoreAlertShown = false; // Trigger UI animation if handled
+    }
+
     // Time-based Speed Increase (Every 10s approx)
     // 60fps * 10s = 600 frames
     if (frameCount % 600 === 0 && frameCount > 0) {
@@ -656,6 +693,7 @@ function startGame() {
 
     gameSpeed = 5;
     score = 0;
+    highScoreBroken = false;
     highScoreAlertShown = false;
     highScoreAlert.innerText = "NEW HIGH SCORE!";
     highScoreAlert.style.color = "yellow";
