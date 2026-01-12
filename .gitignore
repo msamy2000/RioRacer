@@ -5,3 +5,9 @@ rioracer-extension-v*.zip
 
 # Extension build artifacts can be regenerated
 extension/
+
+# CRITICAL: Never commit private key!
+extension.pem
+
+# Packed extension file
+extension.crx
