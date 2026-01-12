@@ -74,31 +74,6 @@
         </div>
     </div>
 
-    <!-- Debugging Error Handler -->
-    <script>
-        window.onerror = function (msg, url, lineNo, columnNo, error) {
-            var string = msg.toLowerCase();
-            var substring = "script error";
-            if (string.indexOf(substring) > -1) {
-                alert('Script Error: See Console for details.');
-            } else {
-                var message = [
-                    'Message: ' + msg,
-                    'URL: ' + url,
-                    'Line: ' + lineNo,
-                    'Column: ' + columnNo,
-                    'Error object: ' + JSON.stringify(error)
-                ].join(' - ');
-                alert(message);
-            }
-            return false;
-        };
-        // Check if module loads
-        window.addEventListener('load', () => {
-            // If Play button has no listeners, game won't start.
-            console.log("Window Loaded");
-        });
-    </script>
     <script type="module" src="script.js"></script>
 </body>
 
