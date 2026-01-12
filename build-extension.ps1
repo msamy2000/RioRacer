@@ -1,7 +1,7 @@
 # Dog vs. Street - Chrome Extension Build Script
 # Run this script to package the extension for distribution
 
-Write-Host "Building Dog vs. Street Chrome Extension v1.4.5..." -ForegroundColor Cyan
+Write-Host "Building Dog vs. Street Chrome Extension v1.5.0..." -ForegroundColor Cyan
 
 # Create extension directory if it doesn't exist
 New-Item -ItemType Directory -Force -Path "extension" | Out-Null
@@ -21,7 +21,7 @@ Copy-Item graphics/game_cover.png extension/icons/icon48.png -Force
 Copy-Item graphics/game_cover.png extension/icons/icon128.png -Force
 
 # Create zip file for Chrome Web Store
-$version = "1.4.5"
+$version = "1.5.0"
 $zipFile = "rioracer-extension-v$version.zip"
 
 Write-Host "Creating distribution package..." -ForegroundColor Yellow

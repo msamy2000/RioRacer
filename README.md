@@ -1,6 +1,6 @@
 # Dog vs. Street - Endless Runner Game
 
-![Version](https://img.shields.io/badge/version-1.4.5-blue)
+![Version](https://img.shields.io/badge/version-1.5.0-blue)
 ![Platform](https://img.shields.io/badge/platform-Web%20%7C%20Chrome%20Extension-green)
 
 **Play Now**: [https://msamy2000.github.io/rioracer/](https://msamy2000.github.io/rioracer/)
@@ -280,7 +280,15 @@ See [EXTENSION-README.md](EXTENSION-README.md) and [TESTING-GUIDE.md](TESTING-GU
 
 ### Version History
 
-- **v1.4.5** (Current)
+- **v1.5.0** (Current)
+  - Starting speed increased to 8 (was 5)
+  - Removed speed cap (infinite difficulty scaling)
+  - Multi-obstacle patterns after 1 minute (2-3 consecutive)
+  - Double-jump required for hard mode survival
+  - Faster spawning in hard mode (40-80 frames)
+  - Comprehensive gameplay documentation
+
+- **v1.4.5**
   - Multi-obstacle patterns after 1 minute
   - Starting speed increased to 8
   - Removed speed cap (infinite difficulty)
