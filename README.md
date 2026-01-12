@@ -55,11 +55,10 @@ In *Dog vs. Street*, you play as a scrappy street dog running through an endless
 | Time | Speed | Obstacles | Challenge Level |
 |------|-------|-----------|----------------|
 | 0:00 | 8 | Single | **Easy** - Learn controls |
-| 0:45 | 13 | Multi (Double-Jump) | **HARD MODE** (Faster start) |
+| 0:30 | 11 | Multi (Double-Jump) | **HARD MODE** (30s Start) |
 | 1:00 | 14 | Randomized Gaps | Pattern memorization impossible |
-| **1:30** | **17** | **GAP TRAPS** | **EXPERT MODE ACTIVATED** |
-| 2:00 | 25 | Extreme Speed | 2x Acceleration Rate |
-| 5:00+ | 50+ | Chaos | Near-impossible |
+| **1:30** | **17** | **CHAOS PATTERNS** | **EXPERT MODE ACTIVATED** |
+| 2:30 | 25 | High Speed | 1.5x Acceleration Rate |
 
 ### Expert Mode (The "Timmy Special")
 
@@ -280,11 +279,12 @@ See [EXTENSION-README.md](EXTENSION-README.md) and [TESTING-GUIDE.md](TESTING-GU
 
 ### Version History
 
-- **v1.6.0** (Current)
-  - **Expert Mode** (1m 30s): "Gap Trap" patterns designed to break double-jump spam
-  - **Hard Mode** (45s): Starts earlier with randomized spacing
-  - **Extreme Speed**: Acceleration doubles after 90 seconds
-  - Based on user feedback for "Tricky" gameplay
+- **v1.6.3** (Current - Faster Pace)
+  - **Hard Mode** starts at 30s (was 50s)
+  - **Expert Mode** starts at 1m 30s (was 1m 40s)
+  - **Chaos Patterns**: Randomized Gap Traps, Triple Threats, Fake-Outs
+
+- **v1.6.0 - v1.6.2**
 
 - **v1.5.0**
   - Multi-obstacle patterns after 1 minute
