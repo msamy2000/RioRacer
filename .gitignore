@@ -1,0 +1,7 @@
+# Dog vs. Street - Chrome Extension Files
+
+# Exclude the packaged zip from version control
+rioracer-extension-v*.zip
+
+# Extension build artifacts can be regenerated
+extension/
