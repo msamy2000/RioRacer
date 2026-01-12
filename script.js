@@ -538,6 +538,10 @@ function handleObstacles(deltaTime) {
     // Safety buffer (user can't frame-perfect jump every time)
     let minSafeGap = jumpDistance * 1.5;
 
+    // DIFFICULTY ESCALATION: After 1 minute (3600 frames at 60fps), spawn obstacle patterns
+    const oneMinute = 3600;
+    const isHardMode = frameCount > oneMinute;
+
     // Spawning Strategy: Random timer + Distance Check
     spawnTimer++;
 
@@ -558,11 +562,30 @@ function handleObstacles(deltaTime) {
         }
 
         if (safeToSpawn) {
-            obstacles.push(new Obstacle());
+            // HARD MODE: Spawn multiple consecutive obstacles
+            if (isHardMode && Math.random() < 0.4) { // 40% chance of multi-obstacle
+                // Spawn 2-3 obstacles in quick succession
+                const count = Math.random() < 0.5 ? 2 : 3;
+
+                for (let i = 0; i < count; i++) {
+                    // Each obstacle offset by just enough to require precise double-jumping
+                    // Gap = slightly less than single jump distance to force double jump usage
+                    const tightGap = jumpDistance * 0.6; // Tight spacing
+                    obstacles.push(new Obstacle(i * tightGap));
+                }
+            } else {
+                // Normal single obstacle
+                obstacles.push(new Obstacle());
+            }
+
             spawnTimer = 0;
             // Next delay: Randomize to create rhythm, but ensure it's not too long either.
-            // 40 to 120 frames?
-            nextSpawnDelay = 60 + Math.random() * 60;
+            // In hard mode, spawn more frequently
+            if (isHardMode) {
+                nextSpawnDelay = 40 + Math.random() * 40; // Faster spawning
+            } else {
+                nextSpawnDelay = 60 + Math.random() * 60;
+            }
         }
     }
 
