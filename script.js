@@ -567,28 +567,36 @@ function handleObstacles(deltaTime) {
         }
 
         if (safeToSpawn) {
-            // EXPERT MODE: "Gap Trap" Pattern
-            // Probability reduced to 40% (was 60%) to be less punishing
+            // EXPERT MODE: "Chaos Patterns" (Randomized to prevent memorization)
+            // 40% Chance of a complex pattern, otherwise single/double
             if (isExpertMode && Math.random() < 0.4) {
-                // Pattern: [Block] ...gap... [Block]
-                // Gap is specifically sized to allow LANDING but require immediate reaction
+                const patternType = Math.random();
 
-                // First obstacle
-                obstacles.push(new Obstacle(0));
-
-                // Second obstacle: Positioned to force: Jump -> Land -> Jump
-                // A full jump distance is 'jumpDistance'. 
-                // We want them to land, so gap must be > jumpDistance.
-                // But we want it TIGHT, so gap should be jumpDistance + tiny buffer.
-                const landingSpot = jumpDistance * 1.2;
-                obstacles.push(new Obstacle(landingSpot));
-
-                // Optional 3rd element for pure chaos
-                if (Math.random() < 0.5) {
-                    const secondLanding = landingSpot + (jumpDistance * 1.2);
-                    obstacles.push(new Obstacle(secondLanding));
+                if (patternType < 0.33) {
+                    // PATTERN A: "The Gap Trap" (Jump -> Land -> Jump)
+                    // Gap is sized to force a landing.
+                    obstacles.push(new Obstacle(0));
+                    const landingBuffer = jumpDistance * (1.1 + Math.random() * 0.3); // 1.1x - 1.4x gap
+                    obstacles.push(new Obstacle(landingBuffer));
                 }
-
+                else if (patternType < 0.66) {
+                    // PATTERN B: "The Triple Threat" (Rapid fire small jumps)
+                    // 3 obstacles with tight, random spacing
+                    let offset = 0;
+                    for (let i = 0; i < 3; i++) {
+                        obstacles.push(new Obstacle(offset));
+                        offset += jumpDistance * (0.5 + Math.random() * 0.2); // 0.5x - 0.7x gap (Tight!)
+                    }
+                }
+                else {
+                    // PATTERN C: "The Fake-Out" (Long wait... then rapid pair)
+                    // First obstacle... long pause... fast double
+                    obstacles.push(new Obstacle(0));
+                    const longGap = jumpDistance * 2.5;
+                    obstacles.push(new Obstacle(longGap));
+                    const tightGap = jumpDistance * 0.6;
+                    obstacles.push(new Obstacle(longGap + tightGap));
+                }
             }
             // HARD MODE: Spawn multiple consecutive obstacles (Double Jump Check)
             else if (isHardMode && Math.random() < 0.5) {
