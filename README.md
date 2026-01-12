@@ -16,6 +16,9 @@ In *Dog vs. Street*, you play as a scrappy street dog running through an endless
 ### Key Features
 
 - **Progressive Difficulty**: Game speed starts at 8 and increases every 10 seconds with NO CAP
+- **Super-Hero Mode (v1.7)**: Collect the Golden Bone in Expert Mode to become invincible!
+- **Arcade FX (v1.7)**: Screen shake, confetti celebrations, and near-miss "Clutch" bonuses.
+- **Offline Resilience**: Play anytime, even without an internet connection (Leaderboard disables gracefully).
 - **Advanced Mechanics**: Double-jump system for navigating tight obstacle patterns
 - **Hardcore Mode**: After 1 minute, 2-3 consecutive obstacles spawn requiring frame-perfect timing
 - **Global Leaderboard**: Real-time Firebase integration - compete with players worldwide
@@ -57,13 +60,19 @@ In *Dog vs. Street*, you play as a scrappy street dog running through an endless
 | 0:00 | 8 | Single | **Easy** - Learn controls |
 | 0:30 | 11 | Multi (Double-Jump) | **HARD MODE** (30s Start) |
 | 1:00 | 14 | Randomized Gaps | Pattern memorization impossible |
-| **1:30** | **17** | **CHAOS PATTERNS** | **EXPERT MODE ACTIVATED** |
+| **1:30** | **17** | **CHAOS PATTERNS** | **EXPERT MODE** + 🦴 **GOLDEN BONE** |
 | 2:30 | 25 | High Speed | 1.5x Acceleration Rate |
 
 ### Expert Mode (The "Timmy Special")
 
-At **1 minute 30 seconds**, the game evolves again with randomized **Chaos Patterns**. The game randomly selects one of these for every spawn:
+At **1 minute 30 seconds**, the game evolves again with randomized **Chaos Patterns** AND **Power-Ups**.
 
+**🦴 The Golden Bone**:
+- Spawns rarely (every ~15s) during Expert Mode.
+- **Effect**: transforms you into **Super Hero Dog** for 10 seconds.
+- **Super Power**: You become **INVINCIBLE** and destroy obstacles on impact ("Super Smash!").
+
+**⚠️ Chaos Patterns**:
 1. **The Gap Trap** (33%): `[Block] ...gap... [Block]`. The gap is just big enough to land in. You *must* Jump -> Land -> Jump. Double-jumping over it will kill you.
 2. **The Triple Threat** (33%): `[Block] [Block] [Block]`. Three obstacles with very tight, random spacing. Requires rapid, precise tapping.
 3. **The Fake-Out** (33%): `[Block] ... ... ... [Fast Pair]`. One obstacle, a long safe pause to lower your guard, then a sudden fast double-spawn.
