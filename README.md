@@ -62,11 +62,13 @@ In *Dog vs. Street*, you play as a scrappy street dog running through an endless
 
 ### Expert Mode (The "Timmy Special")
 
-At **1 minute 30 seconds**, the game evolves again:
+At **1 minute 30 seconds**, the game evolves again with randomized **Chaos Patterns**. The game randomly selects one of these for every spawn:
 
-1. **Gap Traps**: A devious pattern of [Block] ... [Land] ... [Block]. You MUST land in the small gap between obstacles. Double-jumping over both is impossible.
-2. **2x Acceleration**: Speed increases every 5 seconds instead of 10.
-3. **Chaos Spawning**: Obstacles appear with highly unpredictable timing.
+1. **The Gap Trap** (33%): `[Block] ...gap... [Block]`. The gap is just big enough to land in. You *must* Jump -> Land -> Jump. Double-jumping over it will kill you.
+2. **The Triple Threat** (33%): `[Block] [Block] [Block]`. Three obstacles with very tight, random spacing. Requires rapid, precise tapping.
+3. **The Fake-Out** (33%): `[Block] ... ... ... [Fast Pair]`. One obstacle, a long safe pause to lower your guard, then a sudden fast double-spawn.
+
+**Speed Note**: Speed increases every **7 seconds** (Standard is 10s), accelerating the chaos.
 
 ### Hard Mode (Adjusted)
 
