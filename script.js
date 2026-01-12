@@ -682,9 +682,9 @@ function updateDifficulty() {
 
     // Time-based Speed Increase (Every 10s approx)
     // 60fps * 10s = 600 frames
-    // In Expert Mode (>100s), speed increases faster (every 7s)
+    // In Expert Mode (>90s), speed increases faster (every 7s)
     let speedInterval = 600;
-    if (frameCount > 6000) speedInterval = 420;
+    if (frameCount > 5400) speedInterval = 420;
 
     if (frameCount % speedInterval === 0 && frameCount > 0) {
         gameSpeed += 1; // Progressive difficulty - no cap!
