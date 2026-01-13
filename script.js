@@ -1423,3 +1423,4 @@ highScoreEl.innerText = Math.floor(highScore);
 
 // Start the single, persistent game loop if not already running
 if (!isAnimating) animate();
+// Force Re-deploy v1.7.3 (GitHub Actions Trigger)
