@@ -589,10 +589,10 @@ class Player {
         }
     }
 
-    update(input) {
+    update(input, timeScale) {
         // Super Hero Timer
         if (this.isSuper) {
-            this.superTimer--;
+            this.superTimer -= 1 * timeScale;
             if (this.superTimer <= 0) {
                 this.isSuper = false;
                 this.image = heroImg; // Revert to strong dog (or start dog)
@@ -600,7 +600,7 @@ class Player {
             }
 
             // Warning Beep last 120 frames (2s)
-            if (this.superTimer > 0 && this.superTimer < 120 && this.superTimer % 15 === 0) {
+            if (this.superTimer > 0 && this.superTimer < 120 && Math.floor(this.superTimer) % 15 === 0) {
                 audio.playPowerUpWarning();
             }
 
@@ -613,7 +613,7 @@ class Player {
         // Jumping
         if (input.jumpPressed) {
             if (this.grounded) {
-                // First Jump
+                // First Jump (Impulse, no timeScale)
                 this.vy = JUMP_FORCE;
                 this.grounded = false;
                 this.jumpCount = 1;
@@ -629,10 +629,10 @@ class Player {
         }
 
         // Apply Physics
-        this.y += this.vy;
+        this.y += this.vy * timeScale;
 
         if (!this.grounded) {
-            this.vy += GRAVITY;
+            this.vy += GRAVITY * timeScale;
         }
 
         // Ground Collision
@@ -675,11 +675,11 @@ class Background {
         this.width = 2400; // Will be set by image width likely, hardcoded fallback
     }
 
-    update() {
+    update(timeScale) {
         // Scroll speed proportional to screen width
         let currentRealSpeed = (CANVAS_WIDTH * 0.005) * (gameSpeed / 5);
 
-        this.x -= currentRealSpeed * 0.5; // Parallax effect
+        this.x -= currentRealSpeed * 0.5 * timeScale; // Parallax effect
 
         if (this.x <= -this.width) {
             this.x = 0;
@@ -727,12 +727,12 @@ class GoldenBone {
         this.floatOffset = Math.random() * Math.PI * 2;
     }
 
-    update() {
+    update(timeScale) {
         let currentRealSpeed = (CANVAS_WIDTH * 0.005) * (gameSpeed / 5);
-        this.x -= currentRealSpeed;
+        this.x -= currentRealSpeed * timeScale;
 
         // Floating effect
-        this.y = this.yOrigin + Math.sin((frameCount * 0.1) + this.floatOffset) * 20;
+        this.y = this.yOrigin + Math.sin((Date.now() * 0.005) + this.floatOffset) * 20;
 
         if (this.x < -this.width) this.markedForDeletion = true;
     }
@@ -780,7 +780,7 @@ class Obstacle {
         this.speedOffset = Math.random() * (CANVAS_WIDTH * 0.0005);
     }
 
-    update() {
+    update(timeScale) {
         // Move left based on screen width percentage? 
         // gameSpeed is basically pixels per frame.
         // It should be proportional to screen width to keep "time to cross screen" constant.
@@ -788,7 +788,7 @@ class Obstacle {
         // Recalculate real speed
         let currentRealSpeed = (CANVAS_WIDTH * 0.005) * (gameSpeed / 5); // 0.5% width per frame at base speed
 
-        this.x -= (currentRealSpeed + this.speedOffset);
+        this.x -= (currentRealSpeed + this.speedOffset) * timeScale;
 
         if (this.x < -this.width) {
             this.markedForDeletion = true;
@@ -858,13 +858,13 @@ class ParticleSystem {
         });
     }
 
-    update() {
+    update(timeScale) {
         for (let i = this.particles.length - 1; i >= 0; i--) {
             let p = this.particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += p.gravity;
-            p.life -= p.isText ? 0.01 : 0.02; // Text lasts longer
+            p.x += p.vx * timeScale;
+            p.y += p.vy * timeScale;
+            p.vy += p.gravity * timeScale;
+            p.life -= (p.isText ? 0.01 : 0.02) * timeScale; // Text lasts longer
 
             if (p.life <= 0) {
                 this.particles.splice(i, 1);
@@ -947,7 +947,7 @@ let powerups = []; // Golden Bone array
 let spawnTimer = 0;
 let nextSpawnDelay = 0; // Frames to wait
 
-function handleObstacles(deltaTime) {
+function handleObstacles(timeScale) {
     // Determine Jump Physics properties to calculate safe gap
     // Jump time (time in air) = 2 * vy / g. 
     // This is approximate because vy is initial velocity.
@@ -976,7 +976,8 @@ function handleObstacles(deltaTime) {
     const isExpertMode = frameCount > expertModeTime;
 
     // Spawning Strategy: Random timer + Distance Check
-    spawnTimer++;
+    // Spawning Strategy: Random timer + Distance Check
+    spawnTimer += timeScale;
 
     if (spawnTimer > nextSpawnDelay) {
         // Time to try spawning
@@ -1080,7 +1081,7 @@ function handleObstacles(deltaTime) {
 
     // Update & Collision: Power-Ups
     powerups.forEach(p => {
-        p.update();
+        p.update(timeScale);
         p.draw(); // Draw here or main loop? update() here is fine for now
 
         // Simple Collision
@@ -1099,7 +1100,7 @@ function handleObstacles(deltaTime) {
 
 
     obstacles.forEach(obs => {
-        obs.update();
+        obs.update(timeScale);
         obs.draw();
 
         // 1. Check "Broad Phase" (Zero Padding) - Are we close?
@@ -1154,9 +1155,12 @@ function displayScore() {
     scoreEl.innerText = Math.floor(score);
 }
 
-function updateDifficulty() {
+// Difficulty Timer Accumulator
+let difficultyTimer = 0;
+
+function updateDifficulty(timeScale) {
     // Increase speed every 500 points
-    score += 0.1; // Slow score increment
+    score += 0.1 * timeScale; // Slow score increment consistent with time
 
     // Dynamic Hero Switch Logic
     // Only if we have a valid high score to beat (>0)
@@ -1183,124 +1187,140 @@ function updateDifficulty() {
         vfx.triggerShake(15, 30); // Major impact shake
     }
 
-    // Time-based Speed Increase (Every 10s approx)
-    // 60fps * 10s = 600 frames
-    // In Expert Mode (>90s), speed increases faster (every 7s)
-    let speedInterval = 600;
-    if (frameCount > 5400) speedInterval = 420;
+    // Time-based Speed Increase
+    // Accumulate time instead of frames
+    difficultyTimer += timeScale;
 
-    if (frameCount % speedInterval === 0 && frameCount > 0) {
+    // 600 frames = 600 units of time (approx 10s)
+    let speedThreshold = 600;
+    if (score > 1000) speedThreshold = 420; // Expert Mode
+
+    if (difficultyTimer >= speedThreshold) {
         gameSpeed += 1; // Progressive difficulty - no cap!
+        difficultyTimer = 0;
     }
-
-    // No speed cap - game becomes progressively harder indefinitely
 }
 
 let isAnimating = false;
 
-// --- Game Loop (Variable Time Step fix for 120Hz+ screens) ---
+// --- Game Loop (Variable Time Step - Scaled, No Cap) ---
 let lastTime = 0;
-const TARGET_FPS = 60;
-const FRAME_INTERVAL = 1000 / TARGET_FPS;
+// const TARGET_FPS = 60; // Not used for capping anymore, just reference
+const REFERENCE_FRAME_MS = 1000 / 60; // 16.66ms = 1.0 scale
 
 function animate(currentTime) {
     if (!lastTime) lastTime = currentTime;
-    const deltaTime = currentTime - lastTime;
+    let deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    // Safety Cap to prevent "Spiral of Death" on lag spikes (e.g. switching tabs)
+    if (deltaTime > 100) deltaTime = 100;
+
+    // Calculate Scale Factor (1.0 = 60fps, 0.5 = 120fps)
+    const timeScale = deltaTime / REFERENCE_FRAME_MS;
 
     requestAnimationFrame(animate);
 
-    // Throttle to target FPS
-    if (deltaTime >= FRAME_INTERVAL) {
-        // Adjust for modulo to keep sync
-        lastTime = currentTime - (deltaTime % FRAME_INTERVAL);
+    // --- Logic Update ---
+    isAnimating = true;
 
-        // --- Logic Update ---
-        isAnimating = true;
-
-        // Explicit Orientation Check (JS Fallback for embedded browsers)
-        const warningEl = document.getElementById('portrait-warning');
-        if (window.innerWidth < window.innerHeight) {
-            if (warningEl) warningEl.style.display = 'flex';
-            // Pause logic if needed, but display block covers it
-        } else {
-            if (warningEl) warningEl.style.display = 'none';
-        }
-
-        // Clear
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        // Apply Screen Shake
-        ctx.save();
-        vfx.apply(ctx);
-
-        // Resize fix
-        if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
-            CANVAS_WIDTH = window.innerWidth;
-            CANVAS_HEIGHT = window.innerHeight;
-            canvas.width = CANVAS_WIDTH;
-            canvas.height = CANVAS_HEIGHT;
-            calculateScale();
-            player.resize();
-        }
-
-        if (currentState === GameState.PLAYING) {
-            // Update Game State
-            background.update();
-            player.update(input);
-            updateDifficulty();
-
-            particles.update();
-            frameCount++;
-
-            // Draw Background
-            background.draw();
-
-            // Sky Color Shift (Expert Mode)
-            if (frameCount > 5400) {
-                ctx.save();
-                ctx.globalCompositeOperation = 'multiply';
-                ctx.fillStyle = '#663399';
-                ctx.globalAlpha = 0.3;
-                ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-                ctx.restore();
-            }
-
-            // Draw Ground
-            ctx.fillStyle = '#555';
-            ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
-
-            // Dashed line 
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 5;
-            ctx.setLineDash([40, 40]);
-            ctx.beginPath();
-            ctx.moveTo(0, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
-            ctx.lineTo(CANVAS_WIDTH + (frameCount * gameSpeed) % 80, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
-            ctx.stroke();
-
-            // Draw Player
-            player.draw();
-
-            // Handle Obstacles & Powerups
-            handleObstacles();
-
-            // Draw Particles & FX
-            particles.draw(ctx);
-            vfx.drawSpeedLines(ctx);
-
-            // UI
-            displayScore();
-        } else {
-            // MENU or GAMEOVER: Draw static
-            background.draw();
-            ctx.fillStyle = '#555';
-            ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
-            player.draw();
-            particles.draw(ctx);
-        }
-
-        ctx.restore(); // Restore transform (shake)
+    // Explicit Orientation Check (JS Fallback for embedded browsers)
+    const warningEl = document.getElementById('portrait-warning');
+    if (window.innerWidth < window.innerHeight) {
+        if (warningEl) warningEl.style.display = 'flex';
+        // Pause logic if needed, but display block covers it
+    } else {
+        if (warningEl) warningEl.style.display = 'none';
     }
+
+    // Clear
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Apply Screen Shake
+    ctx.save();
+    vfx.apply(ctx);
+
+    // Resize fix
+    if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+        CANVAS_WIDTH = window.innerWidth;
+        CANVAS_HEIGHT = window.innerHeight;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        calculateScale();
+        player.resize();
+    }
+
+    if (currentState === GameState.PLAYING) {
+        // Update Game State
+        background.update(timeScale);
+        player.update(input, timeScale);
+        updateDifficulty(timeScale);
+
+        particles.update(timeScale);
+        // frameCount is still useful for discrete events, but we increment by scale?
+        // Actually, let's keep frameCount as "simulation steps" logic or simple frames.
+        // For events (like spawn checks), we used 'frameCount'.
+        // If we run at 120fps, frameCount increases 2x unless we use time.
+        // Let's use timeScale to increment a "simulatedFrameCount" if needed, 
+        // OR just let frameCount run wild and rely on timers.
+        // Simplest for now: Increment frameCount purely for "Total Frames Rendered" debugging,
+        // but use global timers for events. 
+        // NOTE: The spawn logic uses 'spawnTimer++'. We must scale that too.
+        // See spawn logic below...
+        frameCount++;
+
+        // Draw Background
+        background.draw();
+
+        // Sky Color Shift (Expert Mode)
+        // using score as proxy for time is safer now
+        if (score > 1000) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillStyle = '#663399';
+            ctx.globalAlpha = 0.3;
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.restore();
+        }
+
+        // Draw Ground
+        ctx.fillStyle = '#555';
+        ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+
+        // Dashed line 
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 5;
+        ctx.setLineDash([40, 40]);
+        ctx.beginPath();
+        ctx.moveTo(0, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
+        // (frameCount * speed) logic needs time scaling for position?
+        // Actually this is just visual. (Date.now() / X) is smoother.
+        let dashOffset = (Date.now() * (gameSpeed / 10)) % 80;
+        ctx.lineTo(CANVAS_WIDTH + dashOffset, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
+        ctx.stroke();
+
+        // Draw Player
+        player.draw();
+
+        // Handle Obstacles & Powerups
+        handleObstacles(timeScale);
+
+        // Draw Particles & FX
+        particles.draw(ctx);
+        vfx.drawSpeedLines(ctx);
+
+        // UI
+        displayScore();
+    } else {
+        // MENU or GAMEOVER: Draw static
+        background.draw();
+        ctx.fillStyle = '#555';
+        ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+        player.draw();
+        particles.draw(ctx);
+    }
+
+    ctx.restore(); // Restore transform (shake)
 }
 
 // Start the loop
