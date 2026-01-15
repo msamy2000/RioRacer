@@ -142,6 +142,7 @@ let highScore = 0; // GLOBAL ONLY - Initialized by fetchLeaderboard
 let highScoreBroken = false; // Track if we broke it this run
 let highScoreAlertShown = false;
 let frameCount = 0;
+let gameTime = 0; // v1.8.6: "Simulated Frames" (Time-based accumulator)
 let timeSinceStart = 0; // Track time for speed increase
 
 // --- In-App Browser Detection (v1.8.3) ---
@@ -978,8 +979,8 @@ function handleObstacles(timeScale) {
     const hardModeTime = 1800;     // 30s
     const expertModeTime = 5400;   // 90s
 
-    const isHardMode = frameCount > hardModeTime;
-    const isExpertMode = frameCount > expertModeTime;
+    const isHardMode = gameTime > hardModeTime;
+    const isExpertMode = gameTime > expertModeTime;
 
     // Spawning Strategy: Random timer + Distance Check
     // Spawning Strategy: Random timer + Distance Check
@@ -1068,18 +1069,18 @@ function handleObstacles(timeScale) {
     // --- Power-Up Spawning (Scripted & Random) ---
 
     // 1. HARD MODE INTRO (Once Only) - @ ~42s (2500 frames)
-    if (frameCount === 2500) {
+    if (gameTime >= 2500 && gameTime < 2502) {
         powerups.push(new GoldenBone());
         // Force audio hint?
     }
 
     // 2. UNPREDICTABLE PHASE (Twice) - @ ~66s (4000 frames) & ~83s (5000 frames)
-    if (frameCount === 4000 || frameCount === 5000) {
+    if ((gameTime >= 4000 && gameTime < 4002) || (gameTime >= 5000 && gameTime < 5002)) {
         powerups.push(new GoldenBone());
     }
 
     // 3. EXPERT MODE (Randomized) - After 90s
-    if (isExpertMode && frameCount % 900 === 0) { // Every ~15 seconds
+    if (isExpertMode && Math.floor(gameTime) % 900 === 0) { // Every ~15 seconds
         if (Math.random() < 0.7) { // 70% chance when timer hits
             powerups.push(new GoldenBone());
         }
@@ -1286,14 +1287,19 @@ function animate(currentTime) {
         // but use global timers for events. 
         // NOTE: The spawn logic uses 'spawnTimer++'. We must scale that too.
         // See spawn logic below...
+        // Simplest for now: Increment frameCount purely for "Total Frames Rendered" debugging,
+        // but use global timers for events. 
         frameCount++;
+        gameTime += timeScale; // Accumulate normalized time (60 units per second constantly)
 
         // Draw Background
         background.draw();
 
         // Sky Color Shift (Expert Mode)
         // using score as proxy for time is safer now
-        if (score > 1000) {
+        // Sky Color Shift (Expert Mode)
+        // Reverted to Time-based check (v1.8.6)
+        if (gameTime > 5400) { // 90 seconds (normalized)
             ctx.save();
             ctx.globalCompositeOperation = 'multiply';
             ctx.fillStyle = '#663399';
@@ -1464,6 +1470,7 @@ function startGame() {
 
     obstacles = [];
     frameCount = 0;
+    gameTime = 0;
 }
 
 function gameOver() {
