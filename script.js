@@ -1152,92 +1152,113 @@ function updateDifficulty() {
 
 let isAnimating = false;
 
-function animate() {
-    isAnimating = true;
+// --- Game Loop (Variable Time Step fix for 120Hz+ screens) ---
+let lastTime = 0;
+const TARGET_FPS = 60;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
-    // Clear
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+function animate(currentTime) {
+    if (!lastTime) lastTime = currentTime;
+    const deltaTime = currentTime - lastTime;
 
-    // Apply Screen Shake
-    ctx.save(); // Save BEFORE shake
-    vfx.apply(ctx);
+    requestAnimationFrame(animate);
 
-    // Resize fix
-    if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
-        CANVAS_WIDTH = window.innerWidth;
-        CANVAS_HEIGHT = window.innerHeight;
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
+    // Throttle to target FPS
+    if (deltaTime >= FRAME_INTERVAL) {
+        // Adjust for modulo to keep sync
+        lastTime = currentTime - (deltaTime % FRAME_INTERVAL);
 
-        calculateScale();
-        player.resize();
-    }
+        // --- Logic Update ---
+        isAnimating = true;
 
-    if (currentState === GameState.PLAYING) {
-        // Update
-        background.update();
-        player.update(input);
-        updateDifficulty();
-
-        particles.update(); // Update particles
-
-        frameCount++;
-
-        // Draw Background
-        background.draw();
-
-        // Sky Color Shift (Expert Mode)
-        if (frameCount > 6000) { // Expert Mode
-            // Only draw if we want to tint the sky or add an overlay?
-            // Actually, simplest 'Atmospheric Shift' is a colored overlay with 'multiply' blend mode
-            ctx.save();
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.fillStyle = '#663399'; // Deep Purple
-            ctx.globalAlpha = 0.3;
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            ctx.restore();
+        // Explicit Orientation Check (JS Fallback for embedded browsers)
+        const warningEl = document.getElementById('portrait-warning');
+        if (window.innerWidth < window.innerHeight) {
+            if (warningEl) warningEl.style.display = 'flex';
+            // Pause logic if needed, but display block covers it
+        } else {
+            if (warningEl) warningEl.style.display = 'none';
         }
 
-        // Draw Ground
-        ctx.fillStyle = '#555';
-        ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+        // Clear
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        // Dashed line (Moving)
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 5;
-        ctx.setLineDash([40, 40]);
-        ctx.beginPath();
-        ctx.moveTo(0, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
-        ctx.lineTo(CANVAS_WIDTH + (frameCount * gameSpeed) % 80, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
-        ctx.stroke();
+        // Apply Screen Shake
+        ctx.save();
+        vfx.apply(ctx);
 
-        // Draw Player
-        player.draw();
+        // Resize fix
+        if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+            CANVAS_WIDTH = window.innerWidth;
+            CANVAS_HEIGHT = window.innerHeight;
+            canvas.width = CANVAS_WIDTH;
+            canvas.height = CANVAS_HEIGHT;
+            calculateScale();
+            player.resize();
+        }
 
-        // Handle Obstacles & Powerups
-        handleObstacles();
+        if (currentState === GameState.PLAYING) {
+            // Update Game State
+            background.update();
+            player.update(input);
+            updateDifficulty();
 
-        // Draw Particles & FX
-        particles.draw(ctx);
-        vfx.drawSpeedLines(ctx);
+            particles.update();
+            frameCount++;
 
-        // UI
-        displayScore();
-    } else {
-        // MENU or GAMEOVER: Draw static but keep loop for responsiveness
-        background.draw();
-        ctx.fillStyle = '#555';
-        ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
-        player.draw();
-        // Also draw particles if game over happened during explosion
-        particles.draw(ctx);
+            // Draw Background
+            background.draw();
+
+            // Sky Color Shift (Expert Mode)
+            if (frameCount > 5400) {
+                ctx.save();
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.fillStyle = '#663399';
+                ctx.globalAlpha = 0.3;
+                ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                ctx.restore();
+            }
+
+            // Draw Ground
+            ctx.fillStyle = '#555';
+            ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+
+            // Dashed line 
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 5;
+            ctx.setLineDash([40, 40]);
+            ctx.beginPath();
+            ctx.moveTo(0, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
+            ctx.lineTo(CANVAS_WIDTH + (frameCount * gameSpeed) % 80, CANVAS_HEIGHT - GROUND_HEIGHT + 20);
+            ctx.stroke();
+
+            // Draw Player
+            player.draw();
+
+            // Handle Obstacles & Powerups
+            handleObstacles();
+
+            // Draw Particles & FX
+            particles.draw(ctx);
+            vfx.drawSpeedLines(ctx);
+
+            // UI
+            displayScore();
+        } else {
+            // MENU or GAMEOVER: Draw static
+            background.draw();
+            ctx.fillStyle = '#555';
+            ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
+            player.draw();
+            particles.draw(ctx);
+        }
+
+        ctx.restore(); // Restore transform (shake)
     }
-
-    ctx.restore(); // Restore transform (shake)
-
-    // SINGLE requestAnimationFrame call for the entire function
-    requestAnimationFrame(animate);
 }
+
+// Start the loop
+if (!isAnimating) requestAnimationFrame(animate);
 
 // --- Leaderboard Logic ---
 // --- Leaderboard Logic ---
@@ -1421,6 +1442,6 @@ ctx.fillRect(0, CANVAS_HEIGHT - GROUND_HEIGHT, CANVAS_WIDTH, GROUND_HEIGHT);
 player.draw();
 highScoreEl.innerText = Math.floor(highScore);
 
-// Start the single, persistent game loop if not already running
-if (!isAnimating) animate();
+// Start Loop
+requestAnimationFrame(animate);
 // Force Re-deploy v1.7.3 (GitHub Actions Trigger)
