@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rioracer-v1.9.0';
+const CACHE_NAME = 'rioracer-v1.9.9';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -57,4 +57,10 @@ self.addEventListener('fetch', (e) => {
             });
         })
     );
+});
+// Message Handler for Skip Waiting
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
