@@ -105,12 +105,14 @@ canvas {
     font-family: var(--font-heading);
     font-size: 2rem;
     padding: 1rem 3rem;
-    background-color: var(--secondary-color);
+    background-color: #009432;
+    /* WCAG AA Compliant Green */
     color: white;
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 6px 0 #218c74;
+    box-shadow: 0 6px 0 #006266;
+    /* Even darker shadow */
     transition: transform 0.1s, box-shadow 0.1s;
 }
 
@@ -698,6 +700,7 @@ canvas {
 #share-btn:hover {
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
+
 .link-btn {
     background: none;
     border: none;
