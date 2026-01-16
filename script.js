@@ -1572,7 +1572,32 @@ startBtn.addEventListener('click', resetGame);
 // Initial Draw & Setup
 // startHighScoreEl value is set by fetchLeaderboard
 calculateScale();
-checkInAppBrowser(); // Run Detection
+
+// === Online Only Enforcement (v1.9.4) ===
+function checkConnectivity() {
+    const offlineScreen = document.getElementById('offline-screen');
+    const startButton = document.getElementById('start-btn');
+    const restartButton = document.getElementById('restart-btn');
+    
+    if (!navigator.onLine) {
+        // Offline
+        if (offlineScreen) offlineScreen.classList.remove('hidden');
+        if (startButton) startButton.disabled = true;
+        if (restartButton) restartButton.disabled = true;
+        console.log('Connection Lost - Game Blocked');
+    } else {
+        // Online
+        if (offlineScreen) offlineScreen.classList.add('hidden');
+        if (startButton) startButton.disabled = false;
+        if (restartButton) restartButton.disabled = false;
+        console.log('Connection Restored');
+    }
+}
+
+window.addEventListener('online', checkConnectivity);
+window.addEventListener('offline', checkConnectivity);
+checkConnectivity(); // Initial check
+    checkInAppBrowser(); // Run Detection
 player.resize();
 background.draw();
 ctx.fillStyle = '#555';
