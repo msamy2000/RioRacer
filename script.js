@@ -201,30 +201,31 @@ function checkInAppBrowser() {
 }
 
 // Assets
+// Assets
 const heroImg = new Image();
-heroImg.src = 'graphics/hero.jpg';
+heroImg.src = 'gfx_hero.jpg';
 
 const heroStartImg = new Image();
-heroStartImg.src = 'graphics/hero_start.png';
+heroStartImg.src = 'gfx_hero_start.png';
 
 // v1.7 Assets
 const heroSuperImg = new Image();
-heroSuperImg.src = 'graphics/hero_super.png'; // Super Hero
+heroSuperImg.src = 'gfx_hero_super.png'; // Super Hero
 
 const goldenBoneImg = new Image();
-goldenBoneImg.src = 'graphics/golden_bone.png'; // Power-up
+goldenBoneImg.src = 'gfx_golden_bone.png'; // Power-up
 
 const catImg = new Image();
-catImg.src = 'graphics/obst_Cat.jpg';
+catImg.src = 'gfx_obst_Cat.jpg';
 
 const dogImg = new Image();
-dogImg.src = 'graphics/obst_Dog.jpg';
+dogImg.src = 'gfx_obst_Dog.jpg';
 
 const dog2Img = new Image();
-dog2Img.src = 'graphics/obst_dog2.png';
+dog2Img.src = 'gfx_obst_dog2.png';
 
 const bgImg = new Image();
-bgImg.src = 'graphics/background_seamless_v2.png';
+bgImg.src = 'gfx_background_seamless_v2.png';
 
 // UI Elements
 const startScreen = document.getElementById('start-screen');

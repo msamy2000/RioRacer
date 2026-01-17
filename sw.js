@@ -1,21 +1,21 @@
-const CACHE_NAME = 'rioracer-v1.9.14';
+const CACHE_NAME = 'rioracer-v1.9.17';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './style.css',
     './script.js',
     './manifest.json',
-    './graphics/game_cover.png',
-    './graphics/hero.jpg',
-    './graphics/hero_super.png',
-    './graphics/hero_start.png',
-    './graphics/golden_bone.png',
-    './graphics/obst_Cat.jpg',
-    './graphics/obst_Dog.jpg',
-    './graphics/obst_dog2.png',
-    './graphics/background_seamless_v2.png',
-    './graphics/icon_small.png',
-    './graphics/icon.png'
+    './gfx_game_cover.png?v=1.9.16',
+    './gfx_hero.jpg?v=1.9.16',
+    './gfx_hero_super.png?v=1.9.16',
+    './gfx_hero_start.png?v=1.9.16',
+    './gfx_golden_bone.png?v=1.9.16',
+    './gfx_obst_Cat.jpg?v=1.9.16',
+    './gfx_obst_Dog.jpg?v=1.9.16',
+    './gfx_obst_dog2.png?v=1.9.16',
+    './gfx_background_seamless_v2.png?v=1.9.16',
+    './gfx_icon_small.png?v=1.9.16',
+    './gfx_icon.png?v=1.9.16'
 ];
 
 // Install Event: Cache files

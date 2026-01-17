@@ -9,12 +9,12 @@
     "orientation": "landscape",
     "icons": [
         {
-            "src": "graphics/icon_small.png",
+            "src": "gfx_icon_small.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "graphics/icon.png",
+            "src": "gfx_icon.png",
             "sizes": "512x512",
             "type": "image/png"
         }

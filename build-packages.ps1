@@ -15,7 +15,7 @@ $files = @(
     "sw.js",
     "robots.txt",
     "sitemap.xml",
-    "graphics/*"
+    "gfx_*"
 )
 
 # Create itch.io package
